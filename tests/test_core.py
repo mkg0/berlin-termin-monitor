@@ -161,3 +161,13 @@ class DashboardTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class FilterDlSlotsTests(unittest.TestCase):
+    def test_time_window_and_horizon(self):
+        from datetime import date
+        from termin.ledger import filter_dl_slots
+        slots = ["2026-11-07T16:59", "2026-11-07T17:00", "2026-11-10T20:00",
+                 "2026-11-10T20:01", "2026-11-21T18:00", "2026-11-20T18:00"]
+        got = filter_dl_slots(slots, "17:00", "20:00", 14, today=date(2026, 11, 6))
+        self.assertEqual(got, ["2026-11-07T17:00", "2026-11-10T20:00", "2026-11-20T18:00"])

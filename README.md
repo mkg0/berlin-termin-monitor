@@ -45,4 +45,15 @@ To start again, open a terminal in the project folder and run:
 
 Use `./start --help` to see command-line options.
 
+**Doctolib time window:** only count slots that suit you, e.g. weekday evenings
+within the next two weeks:
+
+```sh
+./start --between 17:00-20:00 --days 14
+```
+
+`--between` keeps slots starting inside the window (both ends included) and
+`--days` ignores slots further ahead. Slots outside the filter are not shown
+and never alert. Both options apply to Doctolib only.
+
 [Development notes](docs/development.md)

@@ -59,6 +59,11 @@ def main():
                     help="auto-open the booking page in your browser when a slot appears")
     ap.add_argument("--sound", default=DEFAULT_SOUND,
                     help=f"alert sound file (default: {DEFAULT_SOUND})")
+    ap.add_argument("--between", default=None, metavar="HH:MM-HH:MM", type=_time_window,
+                    help="Doctolib only: only count slots starting in this time window, "
+                         "e.g. 17:00-20:00")
+    ap.add_argument("--days", type=int, default=None,
+                    help="Doctolib only: ignore slots further than N days ahead")
     args = ap.parse_args()
 
     if args.list_services:
@@ -104,6 +109,17 @@ def main():
         flow = berlin_flow if mode == "berlin" else doctolib_flow
         if flow(args) == "quit":
             return
+
+
+def _time_window(text):
+    """Parse 'HH:MM-HH:MM' into ('HH:MM', 'HH:MM')."""
+    try:
+        start, end = (datetime.strptime(t.strip(), "%H:%M") for t in text.split("-"))
+    except ValueError:
+        raise argparse.ArgumentTypeError("expected HH:MM-HH:MM, e.g. 17:00-20:00")
+    if end < start:
+        raise argparse.ArgumentTypeError("window end is before its start")
+    return start.strftime("%H:%M"), end.strftime("%H:%M")
 
 
 def run():

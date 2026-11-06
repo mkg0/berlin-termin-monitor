@@ -1,12 +1,30 @@
 """Doctolib availability transitions and row summaries, independent of browser I/O."""
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 DL_NEW_SECS = 3600  # Highlight new slots for one hour.
 
 
 DL_GONE_SECS = 5 * 3600  # Retain taken slots for five hours.
+
+
+def filter_dl_slots(slots, from_time=None, to_time=None, days=None, today=None):
+    """Keep slot keys ('YYYY-MM-DDTHH:MM') inside the time-of-day window and
+    within `days` days from today. Unset limits are not applied."""
+    today = today or datetime.now().date()
+    last_day = (today + timedelta(days=days)).isoformat() if days is not None else None
+    out = []
+    for k in slots:
+        if last_day is not None and k[:10] > last_day:
+            continue
+        hm = k[11:16]
+        if from_time and hm < from_time:
+            continue
+        if to_time and hm > to_time:
+            continue
+        out.append(k)
+    return out
 
 
 def update_dl_ledger(led, slots, now):

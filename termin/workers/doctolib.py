@@ -10,7 +10,7 @@ from datetime import datetime
 
 from termin.alerts import notify, play_sound
 from termin.diagnostics import log_debug
-from termin.ledger import _dl_summarize, _fmt_date, dl_apply_poll
+from termin.ledger import _dl_summarize, _fmt_date, dl_apply_poll, filter_dl_slots
 from termin.paths import DL_PROFILE_DIR, SOURCE_FILE, SRC_MTIME, UA
 from termin.providers.doctolib import dl_check, dl_load
 from termin.storage import (
@@ -109,6 +109,10 @@ def doctolib_worker(model, args, on_update):
                                 break
 
                             st["checked"] = datetime.now().strftime("%H:%M:%S")
+                            if slots is not None:
+                                start, end = getattr(args, "between", None) or (None, None)
+                                slots = filter_dl_slots(
+                                    slots, start, end, getattr(args, "days", None))
                             if slots is None:
                                 st["status"] = "error"
                                 st["reason"] = fail_reason
